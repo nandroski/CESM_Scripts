@@ -6,6 +6,7 @@ import matplotlib.pyplot as plt
 import matplotlib.colors as colors
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 from typing import Literal
+import cftime
 
 class Midpoint_Normalize(colors.Normalize):
     '''
@@ -32,7 +33,7 @@ class Midpoint_Normalize(colors.Normalize):
 def plot_contour(input_file,parameter,horz_ax: Literal['lon', 'lat', 'lev'],vert_ax: Literal['lon', 'lat', 'lev'],
                 cmap='cubehelix',title=None,levels=10,output_file=None,show=True,save=False,flip_y=False,
                 plot_size=(12,8),axlabel_size=14,titlelabel_size=16,aspect_ratio="2:1",cbar_ticks=None,
-                extend=False,center=False,log_y=False,
+                extend=False,center=False,log_y=False,nyear=None,
                 derived_function=None,derived_input_list=None):
     '''
     Plots a 2D contourf plot for a given parameter from a single netCDF file along two axes, taking a mean across the other.
@@ -63,6 +64,7 @@ def plot_contour(input_file,parameter,horz_ax: Literal['lon', 'lat', 'lev'],vert
     center (default = False) : If True, centers the colorbar around 0 so that diverging colormaps will properly 
                                align even with asymetric max and min levels.
     log_y (default = False) : if True, makes y-axis log10 scale
+    nyear (default = None) : The integer refering to the year to start time average 
     derived_function (default = None) : function handle for a derived quantity that can be calculated with variables in file.
                                        If provided derived_input_list is required and parameter variable is ignored.
     derived_input_list (default = None) : list of strings of variables names required for derived_function given in the
@@ -97,6 +99,10 @@ def plot_contour(input_file,parameter,horz_ax: Literal['lon', 'lat', 'lev'],vert
         min_level=None
 
 
+    if nyear is None:
+        start_time = cftime.DatetimeNoLeap(1,1,1,has_year_zero=True)
+    else:
+        start_time = cftime.DatetimeNoLeap(nyear,1,1,has_year_zero=True)
     
     # extract aspect ratio
     width = int(aspect_ratio.split(':')[0])
@@ -117,11 +123,11 @@ def plot_contour(input_file,parameter,horz_ax: Literal['lon', 'lat', 'lev'],vert
         Z = derived_function(*derived_input)
         X,Y = np.meshgrid(derived_input[-1].coords[horz_ax].values,derived_input[-1].coords[vert_ax].values)
         if 'time' in derived_input[-1].coords:
-            Z = Z.mean('time')
+            Z = Z[Z.time>=start_time].mean('time')
     else:
         Z = dataset[parameter]
         if 'time' in Z.coords:
-            Z = Z.mean('time')
+            Z = Z[Z.time>=start_time].mean('time')
         X,Y = np.meshgrid(Z.coords[horz_ax].values,Z.coords[vert_ax].values)
 
     plot_parameter = Z.mean(mean_axis)
