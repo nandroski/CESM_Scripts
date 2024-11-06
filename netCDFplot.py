@@ -135,7 +135,7 @@ def plot_contour(input_file,parameter,horz_ax: Literal['lon', 'lat', 'lev'],vert
     max_value = np.max(plot_parameter)
     min_value = np.min(plot_parameter)
     mean_value = np.mean(plot_parameter)
-    order_of_mag = np.floor(np.log10(mean_value)).values
+    order_of_mag = np.floor(np.log10(np.abs(mean_value))).values
     print(order_of_mag)
     print(f'Max Value: {max_value:.2E}')
     print(f'Min Value: {mean_value:.2E}')
