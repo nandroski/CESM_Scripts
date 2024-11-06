@@ -117,11 +117,11 @@ def plot_contour(input_file,parameter,horz_ax: Literal['lon', 'lat', 'lev'],vert
         Z = derived_function(*derived_input)
         X,Y = np.meshgrid(derived_input[-1].coords[horz_ax].values,derived_input[-1].coords[vert_ax].values)
         if 'time' in derived_input[-1].coords:
-            Z = Z[0,:,:,:]
+            Z = Z.mean('time')
     else:
         Z = dataset[parameter]
         if 'time' in Z.coords:
-            Z = Z[0,:,:,:]
+            Z = Z.mean('time')
         X,Y = np.meshgrid(Z.coords[horz_ax].values,Z.coords[vert_ax].values)
 
     plot_parameter = Z.mean(mean_axis)
