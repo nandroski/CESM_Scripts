@@ -159,7 +159,10 @@ def plot_contour(input_file,parameter,horz_ax: Literal['lon', 'lat', 'lev'],vert
     
     #define figure
     fig,ax = plt.subplots(1,1,figsize=plot_size)
-
+    
+    if log_y:
+        plt.yscale("log")
+    
     #plot contour
     if center and extend:
         CF = ax.contourf(X,Y,plot_parameter,levels = levels,cmap=cmap,
@@ -213,7 +216,6 @@ def plot_contour(input_file,parameter,horz_ax: Literal['lon', 'lat', 'lev'],vert
         ax.set_yticks(np.linspace(0,360,7))
         ax.set_ylabel("Longitude",fontsize=axlabel_size)
     elif log_y:
-        plt.yscale("log")
         ax.set_ylabel("Pressure [hPa]",fontsize=axlabel_size)
     else:
         ax.set_yticks(np.linspace(np.floor(Y.min()),np.ceil(Y.max()),10))
